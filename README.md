@@ -25,7 +25,7 @@ To install the Google Drive Risk Assessment Application, follow these steps:
 
 
 # Clone the repository
-git clone https://github.com/<username>/<repository>.git
+git clone https://github.com/ShameemSaifudeen/jarviot-challenge-full-stack.git
 
 # Navigate into the cloned repository directory
 cd <repository>/frontend
@@ -63,7 +63,7 @@ To install the backend, follow these steps:
 
 
 # Clone the repository
-git clone https://github.com/<username>/<repository>.git
+git clone https://github.com/ShameemSaifudeen/jarviot-challenge-full-stack.git
 
 # Navigate into the cloned repository directory
 cd <repository>/backend
@@ -78,10 +78,6 @@ To use the Google Drive Risk Assessment Application, follow these steps:
 pnpm start
 
 
-Sure, here's the README for the backend part of the project:
-
-markdown
-Copy code
 # Google Drive Risk Assessment Application (Backend)
 
 The backend server for the Google Drive Risk Assessment Application. This server handles authentication with Google and communicates with the Google Drive API.
@@ -106,13 +102,19 @@ To install the backend, follow these steps:
 
 
 # Clone the repository
-git clone https://github.com/<username>/<repository>.git
+git clone https://github.com/ShameemSaifudeen/jarviot-challenge-full-stack.git
 
 # Navigate into the cloned repository directory
 cd <repository>/backend
 
 # Install the dependencies with npm
 npm install
+
+To use the Google Drive Risk Assessment Application, follow these steps:
+
+
+# Start the application
+pnpm start
 
 # Configuring Google Drive Risk Assessment Application (Backend)
 Before you can run the server, you will need to set up your Google API credentials and MongoDB connection string:
