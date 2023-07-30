@@ -1,39 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  Container,
-  Box,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CardHeader,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
-} from "@mui/material";
-import { alpha, styled } from "@mui/material/styles";
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${TableCell.root}`]: {
-    padding: theme.spacing(2),
-  },
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
-    backgroundColor: theme.palette.action.hover,
-  },
-  // hide last border
-  "&:last-child td, &:last-child th": {
-    border: 0,
-  },
-}));
+import { Container, Box, Typography, Grid } from "@mui/material";
+import AuthButtons from "./Components/AuthButtons";
+import StatsCard from "./Components/StatsCard";
+import FileTable from "./Components/FileTable";
+import PeopleAccessTable from "./Components/PeopleAccessTable";
+import ReactSpeedometer from "react-d3-speedometer";
+import swal from "sweetalert";
 
 const App = () => {
   const [driveData, setDriveData] = useState({
@@ -43,7 +16,7 @@ const App = () => {
     externallySharedFiles: [],
     peopleWithAccess: {},
     riskCounter: 0,
-    token: null
+    token: null,
   });
 
   const [auth, setAuth] = useState(false);
@@ -74,222 +47,91 @@ const App = () => {
         externallySharedFiles: [],
         peopleWithAccess: {},
         riskCounter: 0,
-        token: null
+        token: null,
       });
       setAuth(false);
-      alert("Access revoked successfully");
+      swal("Success", "Access revoked successfully", "success");
     } catch (error) {
       console.error("Failed to revoke access", error);
+      swal("Error", "Failed to revoke access", "error");
     }
   };
 
   return (
     <Container maxWidth="lg">
       <Box p={3}>
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" gutterBottom align="center">
           Google Drive Risk Report
         </Typography>
-        <Box mb={3}>
-          {auth ? (
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleRevokeAccess}
-            >
-              Revoke Access
-            </Button>
-          ) : (
-            <Button variant="contained" color="primary" onClick={handleAuth}>
-              Link Drive
-            </Button>
-          )}
+        <Box display="flex" justifyContent="center" mb={3}>
+          <AuthButtons
+            auth={auth}
+            handleAuth={handleAuth}
+            handleRevokeAccess={handleRevokeAccess}
+          />
         </Box>
         {auth && (
-          <Grid container spacing={3}>
+          <Grid container spacing={3} justifyContent="center">
             <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardHeader
+              <Box display="flex" flexDirection="column" alignItems="center">
+                <Typography variant="h6" gutterBottom>
+                  Risk Counter
+                </Typography>
+                <ReactSpeedometer
+                  maxValue={100}
+                  value={driveData.riskCounter}
+                  valueFormat={"d"}
+                  height={200}
+                  width={300}
+                />
+                <Typography variant="h6" gutterBottom>
+                  {driveData.riskCounter}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatsCard title="Risk Counter" value={driveData.riskCounter} />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatsCard
                   title="Total Storage Used"
-                  sx={{ backgroundColor: alpha("#1976d2", 0.1) }}
+                  value={`${(driveData.totalSize / 1073741824).toFixed(2)} GB`}
                 />
-                <CardContent>
-                  <Typography variant="h5">
-                    {driveData.totalSize} bytes
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardHeader
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatsCard
                   title="Public Files"
-                  sx={{ backgroundColor: alpha("#1976d2", 0.1) }}
+                  value={driveData.publicFiles.length}
                 />
-                <CardContent>
-                  <Typography variant="h5">
-                    {driveData.publicFiles.length}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardHeader
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatsCard
                   title="Externally Shared Files"
-                  sx={{ backgroundColor: alpha("#1976d2", 0.1) }}
+                  value={driveData.externallySharedFiles.length}
                 />
-                <CardContent>
-                  <Typography variant="h5">
-                    {driveData.externallySharedFiles.length}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardHeader
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <StatsCard
                   title="People with Access"
-                  sx={{ backgroundColor: alpha("#1976d2", 0.1) }}
+                  value={Object.keys(driveData.peopleWithAccess).length}
                 />
-                <CardContent>
-                  <Typography variant="h5">
-                    {Object.keys(driveData.peopleWithAccess).length}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardHeader
-                  title="Risk Counter"
-                  sx={{ backgroundColor: alpha("#1976d2", 0.1) }}
-                />
-                <CardContent>
-                  <Typography variant="h5">{driveData.riskCounter}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Card>
-                <CardHeader
-                  title="Public Files"
-                  sx={{ backgroundColor: alpha("#1976d2", 0.1) }}
-                />
-                <CardContent>
-                  <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                      <TableHead>
-                        <TableRow>
-                          <StyledTableCell>File Name</StyledTableCell>
-                          <StyledTableCell align="right">Link</StyledTableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {driveData.publicFiles.map((file) => (
-                          <StyledTableRow key={file.name}>
-                            <StyledTableCell component="th" scope="row">
-                              {file.name}
-                            </StyledTableCell>
-                            <StyledTableCell align="right">
-                              <a
-                                href={file.webViewLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                {file.webViewLink}
-                              </a>
-                            </StyledTableCell>
-                          </StyledTableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Card>
-                <CardHeader
+              </Grid>
+              <Grid item xs={12} sm={9}>
+                <FileTable title="Public Files" data={driveData.publicFiles} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FileTable
                   title="Externally Shared Files"
-                  sx={{ backgroundColor: alpha("#1976d2", 0.1) }}
+                  data={driveData.externallySharedFiles}
                 />
-                <CardContent>
-                  <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                      <TableHead>
-                        <TableRow>
-                          <StyledTableCell>File Name</StyledTableCell>
-                          <StyledTableCell align="right">Link</StyledTableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {driveData.externallySharedFiles.map((file) => (
-                          <StyledTableRow key={file.name}>
-                            <StyledTableCell component="th" scope="row">
-                              {file.name}
-                            </StyledTableCell>
-                            <StyledTableCell align="right">
-                              <a
-                                href={file.webViewLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                {file.webViewLink}
-                              </a>
-                            </StyledTableCell>
-                          </StyledTableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12}>
-              <Card>
-                <CardHeader
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <PeopleAccessTable
                   title="People with Access"
-                  sx={{ backgroundColor: alpha("#1976d2", 0.1) }}
+                  data={driveData.peopleWithAccess}
                 />
-                <CardContent>
-                  <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                      <TableHead>
-                        <TableRow>
-                          <StyledTableCell>Name</StyledTableCell>
-                          <StyledTableCell align="right">
-                            Access to Files
-                          </StyledTableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {Object.entries(driveData.peopleWithAccess).map(
-                          ([person, files]) => (
-                            <StyledTableRow key={person}>
-                              <StyledTableCell component="th" scope="row">
-                                {person}
-                              </StyledTableCell>
-                              <StyledTableCell align="right">
-                                {files.map((file) => (
-                                  <div key={file.id}>
-                                    <a
-                                      href={file.webViewLink}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                    >
-                                      {file.name}
-                                    </a>
-                                  </div>
-                                ))}
-                              </StyledTableCell>
-                            </StyledTableRow>
-                          )
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </CardContent>
-              </Card>
+              </Grid>
             </Grid>
           </Grid>
         )}

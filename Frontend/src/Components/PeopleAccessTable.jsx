@@ -29,7 +29,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const FileTable = ({ title, data }) => {
+const PeopleAccessTable = ({ title, data }) => {
   return (
     <Card>
       <CardHeader title={title} sx={{ backgroundColor: alpha("#1976d2", 0.1) }} />
@@ -38,25 +38,28 @@ const FileTable = ({ title, data }) => {
           <Table aria-label="simple table">
             <TableHead>
               <TableRow>
-                <StyledTableCell>File Name</StyledTableCell>
-                <StyledTableCell align="right">Link</StyledTableCell>
+                <StyledTableCell>Email</StyledTableCell>
+                <StyledTableCell align="right">Files</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((file) => (
-                <StyledTableRow key={file.name}>
+              {Object.entries(data).map(([email, files]) => (
+                <StyledTableRow key={email}>
                   <StyledTableCell component="th" scope="row">
-                    {file.name}
+                    {email}
                   </StyledTableCell>
                   <StyledTableCell align="right">
-                  <Link
-                      href={file.webViewLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: "#f50057", textDecoration: "none" }}
-                    >
-                      {file.webViewLink}
-                    </Link>
+                    {files.map((file) => (
+                      <Link
+                        key={file.id}
+                        href={file.webViewLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "#f50057", textDecoration: "none" }}
+                      >
+                        {file.name}
+                      </Link>
+                    ))}
                   </StyledTableCell>
                 </StyledTableRow>
               ))}
@@ -68,4 +71,4 @@ const FileTable = ({ title, data }) => {
   );
 };
 
-export default FileTable;
+export default PeopleAccessTable;
